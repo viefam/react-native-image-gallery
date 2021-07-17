@@ -237,6 +237,8 @@ export default class Gallery extends PureComponent {
       imageComponent,
       minScale,
       maxScale,
+      onSwipeDown,
+      swipedownThreshold
     } = this.props
     return (
       <TransformableImage
@@ -256,6 +258,8 @@ export default class Gallery extends PureComponent {
         image={pageData}
         minScale={minScale}
         maxScale={maxScale}
+        onSwipeDown={onSwipeDown}
+        swipedownThreshold={swipedownThreshold}
       />
     )
   }

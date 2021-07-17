@@ -176,6 +176,8 @@ export default class TransformableImage extends PureComponent {
       onTransformGestureReleased,
       onViewTransformed,
       minScale,
+      onSwipeDown,
+      swipedownThreshold
     } = this.props
 
     let maxScale = 1
@@ -229,6 +231,8 @@ export default class TransformableImage extends PureComponent {
         contentAspectRatio={contentAspectRatio}
         onLayout={this.onLayout}
         style={style}
+        onSwipeDown={onSwipeDown}
+        swipedownThreshold={swipedownThreshold}
       >
         {error ? this.renderError() : content}
       </ViewTransformer>

@@ -1,5 +1,5 @@
 import React from "react"
-import ReactNative, { View, Animated, Easing, NativeModules } from "react-native"
+import ReactNative, { View, Animated, Easing, NativeModules, Dimensions } from "react-native"
 import Scroller from "../Scroller"
 import PropTypes from "prop-types"
 import { createResponder } from "../GestureResponder"
@@ -64,7 +64,8 @@ export default class ViewTransformer extends React.Component {
     this.contentRect = this.contentRect.bind(this)
     this.transformedContentRect = this.transformedContentRect.bind(this)
     this.animate = this.animate.bind(this)
-
+    this.originalScale = 1
+    this.originalAmplitude = 0
     this.scroller = new Scroller(true, (dx, dy, scroller) => {
       if (dx === 0 && dy === 0 && scroller.isFinished()) {
         this.animateBounce()
@@ -179,13 +180,16 @@ export default class ViewTransformer extends React.Component {
   }
 
   onResponderGrant(evt, gestureState) {
+    const { scale, height } = this.state;
     this.props.onTransformStart && this.props.onTransformStart()
     this.setState({ responderGranted: true })
     this.measureLayout()
+    this.originalScale = scale
+    this.originalAmplitude = (height * (scale - 1)) / (2 * scale)
   }
 
   onResponderMove(evt, gestureState) {
-    const {height} = this.state;
+    const { height } = this.state;
     const { minScale } = this.props
     this.cancelAnimation()
 
@@ -216,6 +220,8 @@ export default class ViewTransformer extends React.Component {
         new Transform(scaleBy, dx, dy, { x: pivotX, y: pivotY }),
       )
       transform = getTransform(this.contentRect(), rect)
+      this.originalScale = scaleBy
+      this.originalAmplitude = (height * (scaleBy - 1)) / (2 * scaleBy)
     } else {
       if (Math.abs(dx) > 2 * Math.abs(dy)) {
         dy = 0
@@ -225,15 +231,21 @@ export default class ViewTransformer extends React.Component {
       transform.translateX = this.state.translateX + dx / this.state.scale
       transform.translateY = this.state.translateY + dy / this.state.scale
     }
-    //not bounce vertical
-    if (this.currentTransform().scale === minScale) {
-      transform.translateY = 0
-    } else {
-      const amplitude =
-        (height * (this.currentTransform().scale - 1)) / (2 * this.currentTransform().scale)
-      if (transform.translateY <= -amplitude) {
-        transform.translateY = -amplitude
+    const amplitude =
+      (height * (this.currentTransform().scale - 1)) / (2 * this.currentTransform().scale)
+    if (transform.translateY <= -amplitude) {
+      transform.translateY = -amplitude
+    }
+    if (this.props.onSwipeDown) {
+      // swipedown threshold 
+      if (transform.translateY >= this.originalAmplitude) {
+        //zoom when swipe down
+        if (this.originalScale === minScale) {
+          const newScale = minScale - (transform.translateY) / (height)
+          this.state.scale = newScale
+        }
       }
+    } else {
       if (transform.translateY >= amplitude) {
         transform.translateY = amplitude
       }
@@ -271,6 +283,14 @@ export default class ViewTransformer extends React.Component {
 
       this.performDoubleTapUp(pivotX, pivotY)
     } else {
+      const threshold = this.state.translateY - this.originalAmplitude
+      const swipedownThreshold = this.props.swipedownThreshold || 120
+
+      if (this.props.onSwipeDown && threshold * this.originalScale >= swipedownThreshold) {
+        this.props.onSwipeDown()
+        return
+      }
+
       if (this.props.enableTranslate) {
         this.performFling(gestureState.vx, gestureState.vy)
       } else {
