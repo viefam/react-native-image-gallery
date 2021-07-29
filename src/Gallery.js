@@ -167,9 +167,17 @@ export default class Gallery extends PureComponent {
     if (!viewTransformer) {
       return false
     }
+    const { dx, dy } = gestureState
+    if (dx === 0) return false
+    if (dy === 0) return true
+
+    const arctan = Math.atan(dy / Math.abs(dx))
+    if (arctan > Math.atan(1)) {
+      return false
+    }
 
     const space = viewTransformer.getAvailableTranslateSpace()
-    const dx = gestureState.moveX - gestureState.previousMoveX
+
 
     if (dx > 0 && space.left <= 0 && this.currentPage > 0) {
       return true
