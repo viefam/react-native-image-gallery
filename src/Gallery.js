@@ -32,7 +32,7 @@ export default class Gallery extends PureComponent {
   static defaultProps = {
     removeClippedSubviews: true,
     imageComponent: undefined,
-    scrollViewStyle: {},
+    scrollViewStyle: { },
     flatListProps: DEFAULT_FLAT_LIST_PROPS,
   }
 
@@ -80,10 +80,16 @@ export default class Gallery extends PureComponent {
       onStartShouldSetResponder: (evt, gestureState) => true,
       onResponderGrant: this.activeImageResponder,
       onResponderMove: (evt, gestureState) => {
+        if (this.props.disable) return
+        if (!this.activeResponder) return null
         if (this.firstMove) {
           this.firstMove = false
           if (this.shouldScrollViewPager(evt, gestureState)) {
             this.activeViewPagerResponder(evt, gestureState)
+          } else {
+            if (!this.props.onlySwipeImage) {
+              this.activeResponder = null
+            }
           }
           this.props.onGalleryStateChanged && this.props.onGalleryStateChanged(false)
         }
@@ -294,7 +300,7 @@ export default class Gallery extends PureComponent {
     this.pageCount = images.length
 
     if (this.pageCount <= 0) {
-      gestureResponder = {}
+      gestureResponder = { }
     }
 
     const flatListProps = { ...DEFAULT_FLAT_LIST_PROPS, ...this.props.flatListProps }
