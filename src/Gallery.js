@@ -87,7 +87,7 @@ export default class Gallery extends PureComponent {
           if (this.shouldScrollViewPager(evt, gestureState)) {
             this.activeViewPagerResponder(evt, gestureState)
           } else {
-            if (!this.props.onlySwipeImage) {
+            if (this.props.onlySwipeImage) {
               this.activeResponder = null
             }
           }
