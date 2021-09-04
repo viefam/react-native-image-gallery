@@ -32,7 +32,7 @@ export default class Gallery extends PureComponent {
   static defaultProps = {
     removeClippedSubviews: true,
     imageComponent: undefined,
-    scrollViewStyle: { },
+    scrollViewStyle: {},
     flatListProps: DEFAULT_FLAT_LIST_PROPS,
   }
 
@@ -176,6 +176,9 @@ export default class Gallery extends PureComponent {
     const { dx, dy } = gestureState
     if (dx === 0) return false
     if (dy === 0) return true
+    if (this.props.onlySwipeImage && Math.abs(Math.atan(dy / dx)) > 0.3) {
+      return false
+    }
 
     const arctan = Math.atan(dy / Math.abs(dx))
     if (arctan > Math.atan(1)) {
@@ -300,7 +303,7 @@ export default class Gallery extends PureComponent {
     this.pageCount = images.length
 
     if (this.pageCount <= 0) {
-      gestureResponder = { }
+      gestureResponder = {}
     }
 
     const flatListProps = { ...DEFAULT_FLAT_LIST_PROPS, ...this.props.flatListProps }
