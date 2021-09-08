@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import Scroller from '../Scroller';
 import { createResponder } from '../GestureResponder';
 
-const MIN_FLING_VELOCITY = 0.5;
+const MIN_FLING_VELOCITY = 0.3;
 
 // Dimensions are only used initially.
 // onLayout should handle orientation swap.
