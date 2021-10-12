@@ -345,6 +345,7 @@ export default class ViewPager extends PureComponent {
                     data={pageDataArray}
                     renderItem={this.renderRow}
                     onLayout={this.onLayout}
+                    removeClippedSubviews={false}
                     // use contentOffset instead of initialScrollIndex so that we don't have
                     // to use the buggy 'getItemLayout' prop. See
                     // https://github.com/facebook/react-native/issues/15734#issuecomment-330616697 and
